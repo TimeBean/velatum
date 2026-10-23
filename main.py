@@ -3,10 +3,9 @@ import sys
 
 from anonymizer import FaceAnonymizer, AnonymizeMethod
 
-
 def main() -> None:
-    input_file = 'input.png'
-    output_file = 'output.png'
+    input_file = 'image.png'
+    output_file = 'blured.png'
     model_file = 'face_detection_yunet_2023mar.onnx'
 
     if not os.path.exists(input_file):
