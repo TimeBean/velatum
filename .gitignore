@@ -1,6 +1,8 @@
 .venv/
 .idea/
 
+__pycache__/
+
 input.png
 output.png
 
