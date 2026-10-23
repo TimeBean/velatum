@@ -1,31 +1,60 @@
 import os
-import sys
+import tempfile
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
 
 from anonymizer import FaceAnonymizer, AnonymizeMethod
 
-def main() -> None:
-    input_file = 'image.png'
-    output_file = 'blured.png'
-    model_file = 'face_detection_yunet_2023mar.onnx'
+app = FastAPI(title="Face Blur API", description="API for blurring faces in photos")
 
-    if not os.path.exists(input_file):
-        print(f"Error: File '{input_file}' not found in the current directory.")
-        sys.exit(1)
+MODEL_FILE = 'face_detection_yunet_2023mar.onnx'
+try:
+    anonymizer = FaceAnonymizer(model_path=MODEL_FILE)
+except Exception as e:
+    anonymizer = None
+    print(f"Error loading model: {e}")
+
+def cleanup_file(file_path: str) -> None:
+    """Deletes the temporary file after sending the response to the client."""
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+@app.post("/api/v1/blur-face")
+async def blur_face(image: UploadFile = File(...)):
+    if anonymizer is None:
+        raise HTTPException(status_code=500, detail="Model is not loaded on the server.")
+
+    if not image.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Uploaded file is not an image.")
+
+    fd_in, temp_in_path = tempfile.mkstemp(suffix=".png")
+    fd_out, temp_out_path = tempfile.mkstemp(suffix=".png")
+
+    os.close(fd_in)
+    os.close(fd_out)
 
     try:
-        anonymizer = FaceAnonymizer(model_path=model_file)
+        with open(temp_in_path, "wb") as f_in:
+            content = await image.read()
+            f_in.write(content)
 
-        # Выбор метода передается через параметр method
         anonymizer.process_image(
-            input_path=input_file,
-            output_path=output_file,
-            method=AnonymizeMethod.BLUR,
+            input_path=temp_in_path,
+            output_path=temp_out_path,
+            method=AnonymizeMethod.BLUR
+        )
+
+        cleanup_file(temp_in_path)
+
+        return FileResponse(
+            path=temp_out_path,
+            media_type="image/png",
+            filename=f"blurred_{image.filename}",
+            background=BackgroundTask(cleanup_file, temp_out_path)
         )
 
     except Exception as e:
-        print(f"An error occurred: {e}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
+        cleanup_file(temp_in_path)
+        cleanup_file(temp_out_path)
+        raise HTTPException(status_code=500, detail=f"Image processing error: {str(e)}")
