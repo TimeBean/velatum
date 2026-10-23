@@ -1,4 +1,5 @@
 # Velatum
+*"Velatum" translates from Latin as "veiled" or "hidden"*
 
 | Before | After |
 | :---: | :---: |
