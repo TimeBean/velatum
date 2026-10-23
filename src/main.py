@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 
-from anonymizer import FaceAnonymizer, AnonymizeMethod
+from src.anonymizer import FaceAnonymizer, AnonymizeMethod
 
 app = FastAPI(title="Face Blur API", description="API for blurring faces in photos")
 

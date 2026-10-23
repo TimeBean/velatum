@@ -3,7 +3,7 @@ from enum import Enum
 import cv2
 import numpy as np
 
-from strategies import AnonymizeStrategy, BlurStrategy, FillStrategy
+from src.strategies import AnonymizeStrategy, BlurStrategy, FillStrategy
 
 
 class AnonymizeMethod(Enum):
