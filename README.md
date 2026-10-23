@@ -6,7 +6,7 @@ Minimalist face detection pipeline powered by OpenCV's YuNet.
 
 | Before | After |
 | :---: | :---: |
-| ![Before](image.png) | ![After](blurred_image.png) |
+| ![Before](images/image.png) | ![After](images/blurred_image.png) |
 
 > **Note:** Original sample image was sourced from [NASA Photojournal](https://science.nasa.gov/photojournal/mars-helicopter-team-witnesses-final-downlink/) and is used under the **Fair Use** doctrine for demonstration and educational purposes.
 
